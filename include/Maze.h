@@ -1,33 +1,28 @@
-#pragma once
+#ifndef MAZE_H
+#define MAZE_H
+
 #include "Globals.h"
-#include <array>
-#include <vector>
 
-// Định nghĩa các loại ô trên bản đồ
-enum Tile { WALL = 0, PELLET, POWER, EMPTY, HOUSE, DOOR };
+// Kích thước ô lưới chuẩn Arcade
+constexpr int GRID_W = 28;
+constexpr int GRID_H = 31;
 
-// Định nghĩa trạng thái của Ma (để biết ma có được đi xuyên cửa nhà hay không)
-enum class GMode { InHouse, Exiting, Normal, Frightened, Eaten, Entering };
-
-// Sử dụng using để đặt tên ngắn gọn cho mảng 2 chiều
-using MazeGrid = std::array<std::array<int, GRID_W>, GRID_H>;
+// Các loại ô trong bản đồ
+constexpr int EMPTY  = 0;
+constexpr int WALL   = 1;
+constexpr int PELLET = 2;
+constexpr int POWER  = 3;
+constexpr int DOOR   = 4;
+constexpr int HOUSE  = 5;
 
 class Maze {
 public:
-    MazeGrid grid;
+    int grid[GRID_H][GRID_W];
     int pelletTotal;
 
-    Maze(); // Hàm khởi tạo
-
-    // Hàm xây dựng bản đồ tĩnh
+    Maze();
     void build();
-
-    // Kiểm tra xem Pac-Man có thể đi vào ô (x,y) không
     bool pacWalkable(int x, int y) const;
-
-    // Kiểm tra xem Ma có thể đi vào ô (x,y) không (tùy thuộc trạng thái)
-    bool ghostWalkable(int x, int y, GMode mode) const;
-
-    // Thuật toán loang (Flood-fill) để đảm bảo mọi hạt thức ăn đều có thể ăn được
-    bool validate() const;
 };
+
+#endif

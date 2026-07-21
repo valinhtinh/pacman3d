@@ -74,15 +74,11 @@ void Renderer::fillArc(float cx, float cy, float radius, SDL_Color col, float st
 }
 
 void Renderer::drawWallTile(int x, int y) {
-    SDL_SetRenderDrawColor(sdlRenderer, 12, 14, 110, 255);
-    SDL_Rect outer{x, y, CELL, CELL};
-    SDL_RenderFillRect(sdlRenderer, &outer);
-    
-    SDL_SetRenderDrawColor(sdlRenderer, 36, 70, 255, 255);
-    SDL_Rect inner{x + 3, y + 3, CELL - 6, CELL - 6};
-    SDL_RenderFillRect(sdlRenderer, &inner);
+    // Màu nền tường nguyên bản: Xanh lam đậm (Blue Arcade)
+    SDL_SetRenderDrawColor(sdlRenderer, 33, 33, 222, 255);
+    SDL_Rect rect{x, y, CELL, CELL};
+    SDL_RenderDrawRect(sdlRenderer, &rect); // Vẽ đường viền ô
 }
-
 void Renderer::drawDoorTile(int x, int y) {
     SDL_SetRenderDrawColor(sdlRenderer, 255, 182, 222, 255);
     SDL_Rect r{x + 2, y + CELL / 2 - 2, CELL - 4, 4};

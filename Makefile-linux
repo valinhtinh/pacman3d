@@ -1,0 +1,40 @@
+# SDL2 project - Linux build using system-installed SDL2 dev packages
+# (the .a/.dll.a libraries under lib/ are Windows/MinGW binaries and
+# cannot be used here; this Makefile links against the libraries
+# found via pkg-config instead).
+#
+# Requires: sdl2, SDL2_image, SDL2_mixer, SDL2_ttf development packages.
+#
+# Build:
+#   make -f Makefile-linux
+# Then run ./main
+
+COMPILER       = g++
+SRC_DIR        = src
+BUILD_DIR      = build-linux
+INCLUDE_PATH   = -Iinclude $(shell pkg-config --cflags sdl2 SDL2_image SDL2_mixer SDL2_ttf)
+COMPILER_FLAGS = -O2 -Wall -std=c++17 -MMD -MP
+LINKER_FLAGS   = $(shell pkg-config --libs sdl2 SDL2_image SDL2_mixer SDL2_ttf)
+
+# Every .cpp under src/ is picked up automatically - just add new files there.
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+all: main
+
+main: $(OBJS)
+	$(COMPILER) -o main $(OBJS) $(LINKER_FLAGS)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(COMPILER) $(COMPILER_FLAGS) $(INCLUDE_PATH) -c $< -o $@
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+-include $(DEPS)
+
+clean:
+	rm -rf $(BUILD_DIR) main
+
+.PHONY: all clean

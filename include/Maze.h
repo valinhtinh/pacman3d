@@ -23,6 +23,7 @@ public:
     Maze();
     void build();
     bool pacWalkable(int x, int y) const;
+    bool eatPellet(int x, int y);
 };
 
 #endif

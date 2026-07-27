@@ -5,7 +5,6 @@ Maze::Maze() {
 }
 
 void Maze::build() {
-    // Ma trận bản đồ chuẩn Pac-Man (1980 Arcade)
     // 1: Tường, 2: Hạt nhỏ, 3: Hạt to, 4: Cửa nhà ma, 0: Trống/Đường hầm
     static const int mapTemplate[GRID_H][GRID_W] = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -56,4 +55,19 @@ bool Maze::pacWalkable(int x, int y) const {
     if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
     int t = grid[y][x];
     return t != WALL && t != DOOR && t != HOUSE;
+}
+
+bool Maze::eatPellet(int x, int y) {
+    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
+
+    int& tile = grid[y][x];
+    if (tile == PELLET || tile == POWER) {
+        tile = EMPTY;
+        if (pelletTotal > 0) {
+            pelletTotal--;
+        }
+        return true;
+    }
+
+    return false;
 }

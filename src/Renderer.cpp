@@ -74,7 +74,6 @@ void Renderer::fillArc(float cx, float cy, float radius, SDL_Color col, float st
 }
 
 void Renderer::drawWallTile(int x, int y) {
-    // Màu nền tường nguyên bản: Xanh lam đậm (Blue Arcade)
     SDL_SetRenderDrawColor(sdlRenderer, 33, 33, 222, 255);
     SDL_Rect rect{x, y, CELL, CELL};
     SDL_RenderDrawRect(sdlRenderer, &rect); // Vẽ đường viền ô
@@ -84,7 +83,6 @@ void Renderer::drawDoorTile(int x, int y) {
     SDL_Rect r{x + 2, y + CELL / 2 - 2, CELL - 4, 4};
     SDL_RenderFillRect(sdlRenderer, &r);
 }
-
 void Renderer::drawMaze(const Maze& maze) {
     int ox = 0, oy = TOP_MARGIN;
     Uint32 ticks = SDL_GetTicks();
@@ -112,4 +110,37 @@ void Renderer::drawMaze(const Maze& maze) {
             }
         }
     }
+}
+
+void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
+    SDL_Color yellow{255, 220, 0, 255};
+    fillArc(cx, cy, 8.5f, yellow, 0.0f, 360.0f, 24);
+
+    float facingDeg = 0.0f;
+    if (dirX < 0) facingDeg = 180.0f;
+    else if (dirY < 0) facingDeg = -90.0f;
+    else if (dirY > 0) facingDeg = 90.0f;
+
+    float mouthHalf = 18.0f + 6.0f * std::sin(SDL_GetTicks() * 0.01f);
+    float startRad = (facingDeg - mouthHalf) * PI_F / 180.0f;
+    float endRad = (facingDeg + mouthHalf) * PI_F / 180.0f;
+
+    SDL_Vertex center;
+    center.position = {cx, cy};
+    center.color = {0, 0, 0, 255};
+    center.tex_coord = {0, 0};
+
+    SDL_Vertex start;
+    start.position = {cx + 9.0f * std::cos(startRad), cy + 9.0f * std::sin(startRad)};
+    start.color = {0, 0, 0, 255};
+    start.tex_coord = {0, 0};
+
+    SDL_Vertex end;
+    end.position = {cx + 9.0f * std::cos(endRad), cy + 9.0f * std::sin(endRad)};
+    end.color = {0, 0, 0, 255};
+    end.tex_coord = {0, 0};
+
+    SDL_Vertex verts[3] = {center, start, end};
+    int idx[3] = {0, 1, 2};
+    SDL_RenderGeometry(sdlRenderer, nullptr, verts, 3, idx, 3);
 }

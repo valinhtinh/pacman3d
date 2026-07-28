@@ -144,3 +144,26 @@ void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
     int idx[3] = {0, 1, 2};
     SDL_RenderGeometry(sdlRenderer, nullptr, verts, 3, idx, 3);
 }
+
+void Renderer::drawGhost(float cx, float cy, int dirX, int dirY) {
+    const float radius = 8.5f;
+    SDL_Color bodyColor{255, 0, 0, 255}; // màu đỏ cố định, chưa xử lý đổi màu
+
+    // Nửa đầu tròn phía trên
+    fillArc(cx, cy, radius, bodyColor, 180.0f, 360.0f, 16);
+
+    // Thân dưới hình chữ nhật
+    SDL_SetRenderDrawColor(sdlRenderer, bodyColor.r, bodyColor.g, bodyColor.b, 255);
+    SDL_Rect torso{ (int)(cx - radius), (int)cy, (int)(radius * 2), (int)radius };
+    SDL_RenderFillRect(sdlRenderer, &torso);
+
+    // Mắt trắng đơn giản, có tròng đen theo hướng đi
+    SDL_Color white{255, 255, 255, 255};
+    SDL_Color pupil{20, 20, 90, 255};
+    for (int side = -1; side <= 1; side += 2) {
+        float ex = cx + side * 3.0f;
+        float ey = cy - 2.0f;
+        fillArc(ex, ey, 3.0f, white, 0, 360, 8);
+        fillArc(ex + dirX * 1.3f, ey + dirY * 1.3f, 1.4f, pupil, 0, 360, 6);
+    }
+}

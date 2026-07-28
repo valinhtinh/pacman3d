@@ -19,6 +19,8 @@ public:
     void drawMaze(const Maze& maze);
     void drawPacman(float cx, float cy, int dirX, int dirY);
 
+    void drawGhost(float cx, float cy, int dirX, int dirY);
+
 private:
     SDL_Window* window;
     SDL_Renderer* sdlRenderer;

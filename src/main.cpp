@@ -109,6 +109,7 @@ int main(int argc, char* argv[]) {
             ghost.dirX, ghost.dirY
         );
         renderer.present();
+        
     }
 
     return 0;

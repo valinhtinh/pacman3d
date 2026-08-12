@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <cmath>
+#include <vector>
 #include "Globals.h"
 #include "Maze.h"
 #include "Ghost.h"
@@ -54,6 +55,28 @@ void updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
     }
     pacman.lastMoveTick = now;
 }
+
+// Tao du 4 con ma, dat o cac o trong (PELLET) gan giua ban do de test di chuyen
+std::vector<Ghost> taoDanhSachMa() {
+    std::vector<Ghost> danhSachMa;
+    danhSachMa.emplace_back(BLINKY, 10, 8, 27, 0);   // goc rieng: tren-phai
+    danhSachMa.emplace_back(PINKY, 17, 8, 0, 0);     // goc rieng: tren-trai
+    danhSachMa.emplace_back(INKY, 10, 20, 27, 30);   // goc rieng: duoi-phai
+    danhSachMa.emplace_back(CLYDE, 17, 20, 0, 30);   // goc rieng: duoi-trai
+    return danhSachMa;
+}
+
+void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa) {
+    pacman.col = 14; pacman.row = 23;
+    pacman.dirX = pacman.nextDirX = -1;
+    pacman.dirY = pacman.nextDirY = 0;
+
+    static const int startCol[4] = {10, 17, 10, 17};
+    static const int startRow[4] = {8, 8, 20, 20};
+    for (size_t i = 0; i < danhSachMa.size(); i++) {
+        danhSachMa[i].reset(startCol[i], startRow[i]);
+    }
+}
 }
 
 int main(int argc, char* argv[]) {
@@ -70,8 +93,7 @@ int main(int argc, char* argv[]) {
     Pacman pacman;
     consumeTile(maze, pacman);
 
-    // Tạm spawn ma ở ngoài nhà ma để test di chuyển (chưa xử lý logic ra/vào nhà)
-    Ghost ghost(13, 8);
+    std::vector<Ghost> danhSachMa = taoDanhSachMa();
 
     bool running = true;
     SDL_Event e;
@@ -85,15 +107,22 @@ int main(int argc, char* argv[]) {
         Uint32 now = SDL_GetTicks();
 
         updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
-        ghost.update(maze, pacman.col, pacman.row, now);
 
-        // Va chạm: ma trùng ô với Pacman -> reset về vị trí ban đầu
-        if (ghost.col == pacman.col && ghost.row == pacman.row) {
-            pacman.col = 14; pacman.row = 23;
-            pacman.dirX = pacman.nextDirX = -1;
-            pacman.dirY = pacman.nextDirY = 0;
-            ghost.col = 13; ghost.row = 8;
-            ghost.reset();
+        // Blinky luon la con dau tien - lay vi tri no de cac con khac tinh muc tieu
+        int blinkyCol = danhSachMa[0].col;
+        int blinkyRow = danhSachMa[0].row;
+
+        for (auto& ma : danhSachMa) {
+            ma.capNhat(maze, pacman.col, pacman.row, pacman.dirX, pacman.dirY,
+                       blinkyCol, blinkyRow, now);
+        }
+
+        // Va cham: bat ky con ma nao trung o voi Pacman -> reset toan bo
+        for (auto& ma : danhSachMa) {
+            if (ma.col == pacman.col && ma.row == pacman.row) {
+                resetViTri(pacman, danhSachMa);
+                break;
+            }
         }
 
         renderer.clear();
@@ -103,13 +132,14 @@ int main(int argc, char* argv[]) {
             TOP_MARGIN + pacman.row * CELL + CELL / 2.0f,
             pacman.dirX, pacman.dirY
         );
-        renderer.drawGhost(
-            ghost.col * CELL + CELL / 2.0f,
-            TOP_MARGIN + ghost.row * CELL + CELL / 2.0f,
-            ghost.dirX, ghost.dirY
-        );
+        for (auto& ma : danhSachMa) {
+            renderer.drawGhost(
+                ma.col * CELL + CELL / 2.0f,
+                TOP_MARGIN + ma.row * CELL + CELL / 2.0f,
+                ma.loai, ma.dirX, ma.dirY
+            );
+        }
         renderer.present();
-        
     }
 
     return 0;

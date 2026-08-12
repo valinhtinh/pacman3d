@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include "Maze.h"
+#include "Ghost.h"
 
 class Renderer {
 public:
@@ -19,7 +20,7 @@ public:
     void drawMaze(const Maze& maze);
     void drawPacman(float cx, float cy, int dirX, int dirY);
 
-    void drawGhost(float cx, float cy, int dirX, int dirY);
+    void drawGhost(float cx, float cy, LoaiMa loai, int dirX, int dirY);
 
 private:
     SDL_Window* window;

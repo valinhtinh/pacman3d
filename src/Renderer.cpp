@@ -145,19 +145,31 @@ void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
     SDL_RenderGeometry(sdlRenderer, nullptr, verts, 3, idx, 3);
 }
 
-void Renderer::drawGhost(float cx, float cy, int dirX, int dirY) {
-    const float radius = 8.5f;
-    SDL_Color bodyColor{255, 0, 0, 255}; // màu đỏ cố định, chưa xử lý đổi màu
+namespace {
+SDL_Color mauTheoLoaiMa(LoaiMa loai) {
+    switch (loai) {
+        case BLINKY: return {255, 0, 0, 255};     // đỏ
+        case PINKY:  return {255, 184, 255, 255}; // hồng
+        case INKY:   return {0, 255, 255, 255};   // xanh
+        case CLYDE:  return {255, 184, 82, 255};  // cam
+    }
+    return {255, 255, 255, 255};
+}
+}
 
-    // Nửa đầu tròn phía trên
+void Renderer::drawGhost(float cx, float cy, LoaiMa loai, int dirX, int dirY) {
+    const float radius = 8.5f;
+    SDL_Color bodyColor = mauTheoLoaiMa(loai);
+
+    // vẽ đầu
     fillArc(cx, cy, radius, bodyColor, 180.0f, 360.0f, 16);
 
-    // Thân dưới hình chữ nhật
+    // vẽ thân dưới hcn
     SDL_SetRenderDrawColor(sdlRenderer, bodyColor.r, bodyColor.g, bodyColor.b, 255);
     SDL_Rect torso{ (int)(cx - radius), (int)cy, (int)(radius * 2), (int)radius };
     SDL_RenderFillRect(sdlRenderer, &torso);
 
-    // Mắt trắng đơn giản, có tròng đen theo hướng đi
+    // vẽ mắt trắng, tròng đen theo hướng di
     SDL_Color white{255, 255, 255, 255};
     SDL_Color pupil{20, 20, 90, 255};
     for (int side = -1; side <= 1; side += 2) {

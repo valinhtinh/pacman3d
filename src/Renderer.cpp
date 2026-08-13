@@ -26,6 +26,12 @@ bool Renderer::init(const char* title, int width, int height) {
     sdlRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!sdlRenderer) return false;
 
+    font = TTF_OpenFont("assets/Southern.ttf", 22);
+    if (!font) {
+        std::cerr << "TTF_OpenFont failed: " << TTF_GetError() << "\n";
+        return false;
+    }
+
     return true;
 }
 
@@ -144,6 +150,25 @@ void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
     SDL_Vertex verts[3] = {center, start, end};
     int idx[3] = {0, 1, 2};
     SDL_RenderGeometry(sdlRenderer, nullptr, verts, 3, idx, 3);
+}
+
+void Renderer::drawScore(int score) {
+    if (!font) return; // nhỡ font load lỗi thì ko crash game
+
+    std::string noiDung = "Score: " + std::to_string(score);
+    SDL_Color white{255, 255, 255, 255};
+
+    SDL_Surface* surface = TTF_RenderText_Blended(font, noiDung.c_str(), white);
+    if (!surface) return;
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(sdlRenderer, surface);
+    SDL_Rect viTri{10, 5, surface->w, surface->h}; // góc trên bên trái
+    SDL_FreeSurface(surface);
+
+    if (texture) {
+        SDL_RenderCopy(sdlRenderer, texture, nullptr, &viTri);
+        SDL_DestroyTexture(texture); 
+    }
 }
 
 namespace {

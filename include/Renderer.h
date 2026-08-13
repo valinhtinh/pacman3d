@@ -22,7 +22,7 @@ public:
 
     void drawGhost(float cx, float cy, LoaiMa loai, TrangThaiMa trangThai,
                    int dirX, int dirY, bool isFearEndingSoon);
-    void Score(int score); 
+    void drawScore(int score);
 
 private:
     SDL_Window* window;
@@ -34,5 +34,4 @@ private:
     void drawWallTile(int x, int y);
     void drawDoorTile(int x, int y);
 };
-
 #endif

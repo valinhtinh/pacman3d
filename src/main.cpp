@@ -101,6 +101,8 @@ int main(int argc, char* argv[]) {
         ma.resetGio(gameStartTick);
     }
 
+    int score = 0;
+
     bool running = true;
     SDL_Event e;
 
@@ -113,9 +115,13 @@ int main(int argc, char* argv[]) {
         Uint32 now = SDL_GetTicks();
 
         int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
-        if (pelletType == POWER) {
+        if (pelletType == PELLET) {
+            score += 10;
+        }
+        else if (pelletType == POWER) {
+            score += 50;
             for (auto& ma : danhSachMa) {
-                ma.startFear(8000, now); // 8 giây sợ hãi
+                ma.startFear(15000, now); // 15 giây sợ
             }
         }
 
@@ -128,9 +134,14 @@ int main(int argc, char* argv[]) {
                        blinkyCol, blinkyRow, now);
         }
 
-        // Va cham: bat ky con ma nao trung o voi Pacman -> reset toan bo
+        // Va chạm pacman và ma
         for (auto& ma : danhSachMa) {
-            if (ma.col == pacman.col && ma.row == pacman.row) {
+            if (ma.col != pacman.col || ma.row != pacman.row) continue;
+
+            if (ma.isFear()) {
+                score += 200;   // ăn đc ma đang sợ
+                ma.biAn();       // chỉ con này về nhà, các con khác không ảnh hưởng
+            } else if (ma.trangThai == NORMAL) {
                 resetViTri(pacman, danhSachMa, now);
                 break;
             }
@@ -151,6 +162,7 @@ int main(int argc, char* argv[]) {
                 ma.loai, ma.trangThai, ma.dirX, ma.dirY, ending
             );
         }
+        renderer.drawScore(score);
         renderer.present();
     }
 

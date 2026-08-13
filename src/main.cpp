@@ -70,6 +70,7 @@ void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa, Uint32 now) {
     pacman.col = 14; pacman.row = 23;
     pacman.dirX = pacman.nextDirX = -1;
     pacman.dirY = pacman.nextDirY = 0;
+    pacman.lastMoveTick = now;
 
     static const int startCol[4] = {13, 13, 12, 15};
     static const int startRow[4] = {8, 14, 14, 14};
@@ -102,6 +103,7 @@ int main(int argc, char* argv[]) {
     }
 
     int score = 0;
+    int lives = 3;
 
     bool running = true;
     SDL_Event e;
@@ -142,6 +144,11 @@ int main(int argc, char* argv[]) {
                 score += 200;   // ăn đc ma đang sợ
                 ma.biAn();       // chỉ con này về nhà, các con khác không ảnh hưởng
             } else if (ma.trangThai == NORMAL) {
+                lives--;
+                if (lives <= 0) {
+                    running = false;
+                    break;
+                }
                 resetViTri(pacman, danhSachMa, now);
                 break;
             }
@@ -163,6 +170,7 @@ int main(int argc, char* argv[]) {
             );
         }
         renderer.drawScore(score);
+        renderer.drawLives(lives);
         renderer.present();
     }
 

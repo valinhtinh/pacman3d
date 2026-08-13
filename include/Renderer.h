@@ -23,6 +23,7 @@ public:
     void drawGhost(float cx, float cy, LoaiMa loai, TrangThaiMa trangThai,
                    int dirX, int dirY, bool isFearEndingSoon);
     void drawScore(int score);
+    void drawLives(int lives);
 
 private:
     SDL_Window* window;

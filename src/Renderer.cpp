@@ -171,6 +171,25 @@ void Renderer::drawScore(int score) {
     }
 }
 
+void Renderer::drawLives(int lives) {
+    if (!font) return;
+
+    std::string noiDung = "Lives: " + std::to_string(lives);
+    SDL_Color white{255, 255, 255, 255};
+
+    SDL_Surface* surface = TTF_RenderText_Blended(font, noiDung.c_str(), white);
+    if (!surface) return;
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(sdlRenderer, surface);
+    SDL_Rect viTri{SCREEN_W - 120, 5, surface->w, surface->h};
+    SDL_FreeSurface(surface);
+
+    if (texture) {
+        SDL_RenderCopy(sdlRenderer, texture, nullptr, &viTri);
+        SDL_DestroyTexture(texture);
+    }
+}
+
 namespace {
 // Màu gốc của ma khi bình thường
 SDL_Color mauTheoLoaiMa(LoaiMa loai) {

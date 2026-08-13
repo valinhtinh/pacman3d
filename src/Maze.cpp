@@ -51,9 +51,16 @@ void Maze::build() {
     }
 }
 
+int Maze::wrapCol(int x) const {
+    if (x < 0) return GRID_W - 1;
+    if (x >= GRID_W) return 0;
+    return x;
+}
+
 bool Maze::pacWalkable(int x, int y) const {
-    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
-    int t = grid[y][x];
+    if (y < 0 || y >= GRID_H) return false;
+    int wrappedX = wrapCol(x);
+    int t = grid[y][wrappedX];
     return t != WALL && t != DOOR && t != HOUSE;
 }
 

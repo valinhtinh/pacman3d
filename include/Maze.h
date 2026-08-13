@@ -22,6 +22,7 @@ public:
 
     Maze();
     void build();
+    int wrapCol(int x) const;
     bool pacWalkable(int x, int y) const;
     int eatPellet(int x, int y); // trả về loại pellet đã ăn (PELLET hoặc POWER), hoặc EMPTY nếu không ăn gì
 };

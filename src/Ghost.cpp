@@ -57,8 +57,9 @@ bool Ghost::isFearEndingSoon(Uint32 now) const {
 
 //ma chỉ bị chắn tường, ô house/door đi xuyên đc
 bool Ghost::diChuyen(const Maze& maze, int x, int y) const {
-    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false; 
-    return maze.grid[y][x] != WALL; 
+    if (y < 0 || y >= GRID_H) return false;
+    int wrappedX = maze.wrapCol(x);
+    return maze.grid[y][wrappedX] != WALL;
 }
 
 // Tính mục tiêu dựa trên loại ma và vị trí Pacman, Blinky

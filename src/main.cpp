@@ -22,6 +22,10 @@ bool canMove(const Maze& maze, int col, int row, int dx, int dy) {
     return maze.pacWalkable(col + dx, row + dy);
 }
 
+int wrapPacmanCol(const Maze& maze, int col) {
+    return maze.wrapCol(col);
+}
+
 int updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
     int queuedX = 0;
     int queuedY = 0;
@@ -47,7 +51,7 @@ int updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
 
     int loaiVuaAn = EMPTY;
     if (canMove(maze, pacman.col, pacman.row, pacman.dirX, pacman.dirY)) {
-        pacman.col += pacman.dirX;
+        pacman.col = wrapPacmanCol(maze, pacman.col + pacman.dirX);
         pacman.row += pacman.dirY;
         loaiVuaAn = maze.eatPellet(pacman.col, pacman.row); // LẤY giá trị trả về
     }

@@ -107,7 +107,9 @@ int main(int argc, char* argv[]) {
     }
 
     int score = 0;
-    int lives = 3;
+    int lives = 5;
+    bool gameEnded = false;
+    bool win = false;
 
     bool running = true;
     bool started = false;
@@ -142,44 +144,51 @@ int main(int argc, char* argv[]) {
 
         Uint32 now = SDL_GetTicks();
 
-        int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
-        if (pelletType == PELLET) {
-            score += 10;
-        }
-        else if (pelletType == POWER) {
-            score += 50;
-            for (auto& ma : danhSachMa) {
-                ma.startFear(15000, now); // 15 giây sợ
+        if (!gameEnded) {
+            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+            if (pelletType == PELLET) {
+                score += 10;
             }
-        }
+            else if (pelletType == POWER) {
+                score += 50;
+                for (auto& ma : danhSachMa) {
+                    ma.startFear(15000, now);
+                }
+            }
+            // ăn hết pelle -> win
+            if (maze.pelletTotal <= 0) {
+                gameEnded = true;
+                win = true;
+            }
+        
+            // Blinky luon la con dau tien - lay vi tri no de cac con khac tinh muc tieu
+            int blinkyCol = danhSachMa[0].col;
+            int blinkyRow = danhSachMa[0].row;
 
-        // Blinky luon la con dau tien - lay vi tri no de cac con khac tinh muc tieu
-        int blinkyCol = danhSachMa[0].col;
-        int blinkyRow = danhSachMa[0].row;
+            for (auto& ma : danhSachMa) {
+                ma.capNhat(maze, pacman.col, pacman.row, pacman.dirX, pacman.dirY,
+                        blinkyCol, blinkyRow, now);
+            }
 
-        for (auto& ma : danhSachMa) {
-            ma.capNhat(maze, pacman.col, pacman.row, pacman.dirX, pacman.dirY,
-                       blinkyCol, blinkyRow, now);
-        }
+            // Va chạm pacman và ma
+            for (auto& ma : danhSachMa) {
+                if (ma.col != pacman.col || ma.row != pacman.row) continue;
 
-        // Va chạm pacman và ma
-        for (auto& ma : danhSachMa) {
-            if (ma.col != pacman.col || ma.row != pacman.row) continue;
-
-            if (ma.isFear()) {
-                score += 200;   // ăn đc ma đang sợ
-                ma.biAn();       // chỉ con này về nhà, các con khác không ảnh hưởng
-            } else if (ma.trangThai == NORMAL) {
-                lives--;
-                if (lives <= 0) {
-                    running = false;
+                if (ma.isFear()) {
+                    score += 200;   // ăn đc ma đang sợ
+                    ma.biAn();       // chỉ con này về nhà, các con khác không ảnh hưởng
+                } else if (ma.trangThai == NORMAL) {
+                    lives--;
+                    if (lives <= 0) {
+                        gameEnded = true; 
+                        win = false;
+                        break;
+                    }
+                    resetViTri(pacman, danhSachMa, now);
                     break;
                 }
-                resetViTri(pacman, danhSachMa, now);
-                break;
             }
         }
-
         renderer.clear();
         renderer.drawMaze(maze);
         renderer.drawPacman(
@@ -195,8 +204,17 @@ int main(int argc, char* argv[]) {
                 ma.loai, ma.trangThai, ma.dirX, ma.dirY, ending
             );
         }
-        renderer.drawScore(score);
-        renderer.drawLives(lives);
+
+        if (gameEnded && !win) {
+            renderer.drawLives(lives);
+            renderer.drawText("YOU LOSE", 280, {255, 60, 60, 255});
+        } else {
+            renderer.drawScore(score);
+            renderer.drawLives(lives);
+            if (gameEnded && win) {
+                renderer.drawText("YOU WIN", 280, {255, 255, 0, 255});
+            }
+        }
         renderer.present();
     }
 

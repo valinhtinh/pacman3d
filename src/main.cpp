@@ -56,27 +56,29 @@ void updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
     pacman.lastMoveTick = now;
 }
 
-// Tao du 4 con ma, dat o cac o trong (PELLET) gan giua ban do de test di chuyen
+// Tao du 4 con ma, dat o cac o trong nha ma, co thoi gian cho
 std::vector<Ghost> taoDanhSachMa() {
     std::vector<Ghost> danhSachMa;
-    danhSachMa.emplace_back(BLINKY, 10, 8, 27, 0);   // goc rieng: tren-phai
-    danhSachMa.emplace_back(PINKY, 17, 8, 0, 0);     // goc rieng: tren-trai
-    danhSachMa.emplace_back(INKY, 10, 20, 27, 30);   // goc rieng: duoi-phai
-    danhSachMa.emplace_back(CLYDE, 17, 20, 0, 30);   // goc rieng: duoi-trai
+    danhSachMa.emplace_back(BLINKY, 13, 8, 27, 0, 0);   // goc rieng: tren-phai
+    danhSachMa.emplace_back(PINKY, 13, 14, 0, 0, 5000);     // goc rieng: tren-trai
+    danhSachMa.emplace_back(INKY, 12, 14, 27, 30, 10000);   // goc rieng: duoi-phai
+    danhSachMa.emplace_back(CLYDE, 15, 14, 0, 30, 15000);   // goc rieng: duoi-trai
     return danhSachMa;
 }
 
-void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa) {
+void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa, Uint32 now) {
     pacman.col = 14; pacman.row = 23;
     pacman.dirX = pacman.nextDirX = -1;
     pacman.dirY = pacman.nextDirY = 0;
 
-    static const int startCol[4] = {10, 17, 10, 17};
-    static const int startRow[4] = {8, 8, 20, 20};
+    static const int startCol[4] = {13, 13, 12, 15};
+    static const int startRow[4] = {8, 14, 14, 14};
     for (size_t i = 0; i < danhSachMa.size(); i++) {
         danhSachMa[i].reset(startCol[i], startRow[i]);
+        danhSachMa[i].resetGio(now);
     }
 }
+
 }
 
 int main(int argc, char* argv[]) {
@@ -94,6 +96,10 @@ int main(int argc, char* argv[]) {
     consumeTile(maze, pacman);
 
     std::vector<Ghost> danhSachMa = taoDanhSachMa();
+    Uint32 gameStartTick = SDL_GetTicks();
+    for (auto& ma : danhSachMa) {
+        ma.resetGio(gameStartTick);
+    }
 
     bool running = true;
     SDL_Event e;
@@ -120,7 +126,7 @@ int main(int argc, char* argv[]) {
         // Va cham: bat ky con ma nao trung o voi Pacman -> reset toan bo
         for (auto& ma : danhSachMa) {
             if (ma.col == pacman.col && ma.row == pacman.row) {
-                resetViTri(pacman, danhSachMa);
+                resetViTri(pacman, danhSachMa, now);
                 break;
             }
         }

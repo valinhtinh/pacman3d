@@ -5,15 +5,27 @@ namespace {
 constexpr Uint32 MOVE_DELAY = 150; // ma đi chậm hơn Pacman(120ms) 30ms
 }
 
-Ghost::Ghost(LoaiMa loaiMa, int startCol, int startRow, int gocCol, int gocRow)
+Ghost::Ghost(LoaiMa loaiMa, int startCol, int startRow, int gocCol, int gocRow, Uint32 choMs)
     : loai(loaiMa), col(startCol), row(startRow), dirX(-1), dirY(0),
-      lastMoveTick(0), gocRieng_col(gocCol), gocRieng_row(gocRow) {}
+      lastMoveTick(0), gocRieng_col(gocCol), gocRieng_row(gocRow),
+      isOut(choMs == 0), timeWait(choMs), mocBatDauGame(0) {}
 
 void Ghost::reset(int startCol, int startRow) {
     col = startCol;
     row = startRow;
-    dirX = -1;
-    dirY = 0;
+    dirX = 0;
+    dirY = -1;
+    isOut = (timeWait == 0);
+}
+
+void Ghost::resetGio(Uint32 now) {
+    mocBatDauGame = now;
+}
+
+//ma chỉ bị chắn tường, ô house/door đi xuyên đc
+bool Ghost::diChuyen(const Maze& maze, int x, int y) const {
+    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false; 
+    return maze.grid[y][x] != WALL; 
 }
 
 // Tính mục tiêu dựa trên loại ma và vị trí Pacman, Blinky
@@ -74,7 +86,7 @@ void Ghost::chonHuongDi(const Maze& maze, int mucTieuCol, int mucTieuRow) {
 
         int nx = col + dx[i];
         int ny = row + dy[i];
-        if (!maze.pacWalkable(nx, ny)) continue;
+        if (!diChuyen(maze, nx, ny)) continue; 
 
         float d = std::sqrt(float((nx - mucTieuCol) * (nx - mucTieuCol) +
                                    (ny - mucTieuRow) * (ny - mucTieuRow)));
@@ -95,6 +107,15 @@ void Ghost::chonHuongDi(const Maze& maze, int mucTieuCol, int mucTieuRow) {
 void Ghost::capNhat(const Maze& maze,
                      int pacCol, int pacRow, int pacDirX, int pacDirY,
                      int blinkyCol, int blinkyRow, Uint32 now) {
+    // Nếu ma chưa ra khỏi nhà
+    if (!isOut) {
+        if (now - mocBatDauGame >= timeWait) {
+            isOut = true; // cho ma ra khỏi nhà
+        } else {
+            return; // vẫn đang chờ, không di chuyển
+        }
+    }
+
     if (now - lastMoveTick < MOVE_DELAY) return;
     lastMoveTick = now;
 
@@ -103,7 +124,7 @@ void Ghost::capNhat(const Maze& maze,
                 mucTieuCol, mucTieuRow);
     chonHuongDi(maze, mucTieuCol, mucTieuRow);
 
-    if (maze.pacWalkable(col + dirX, row + dirY)) {
+    if (diChuyen(maze, col + dirX, row + dirY)) {
         col += dirX;
         row += dirY;
     }

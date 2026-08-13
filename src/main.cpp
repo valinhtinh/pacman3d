@@ -22,11 +22,7 @@ bool canMove(const Maze& maze, int col, int row, int dx, int dy) {
     return maze.pacWalkable(col + dx, row + dy);
 }
 
-void consumeTile(Maze& maze, Pacman& pacman) {
-    maze.eatPellet(pacman.col, pacman.row);
-}
-
-void updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
+int updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
     int queuedX = 0;
     int queuedY = 0;
 
@@ -42,18 +38,22 @@ void updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
 
     Uint32 now = SDL_GetTicks();
     constexpr Uint32 MOVE_DELAY = 120;
-    if (now - pacman.lastMoveTick < MOVE_DELAY) return;
+    if (now - pacman.lastMoveTick < MOVE_DELAY) return EMPTY;
 
     if (canMove(maze, pacman.col, pacman.row, pacman.nextDirX, pacman.nextDirY)) {
         pacman.dirX = pacman.nextDirX;
         pacman.dirY = pacman.nextDirY;
     }
+
+    int loaiVuaAn = EMPTY;
     if (canMove(maze, pacman.col, pacman.row, pacman.dirX, pacman.dirY)) {
         pacman.col += pacman.dirX;
         pacman.row += pacman.dirY;
-        consumeTile(maze, pacman);
+        loaiVuaAn = maze.eatPellet(pacman.col, pacman.row); // LẤY giá trị trả về
     }
+
     pacman.lastMoveTick = now;
+    return loaiVuaAn;
 }
 
 // Tao du 4 con ma, dat o cac o trong nha ma, co thoi gian cho
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
     maze.build();
 
     Pacman pacman;
-    consumeTile(maze, pacman);
+    maze.eatPellet(pacman.col, pacman.row); // ăn ô đầu tiên, không cần biết ăn gì
 
     std::vector<Ghost> danhSachMa = taoDanhSachMa();
     Uint32 gameStartTick = SDL_GetTicks();
@@ -112,7 +112,12 @@ int main(int argc, char* argv[]) {
 
         Uint32 now = SDL_GetTicks();
 
-        updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+        int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+        if (pelletType == POWER) {
+            for (auto& ma : danhSachMa) {
+                ma.startFear(8000, now); // 8 giây sợ hãi
+            }
+        }
 
         // Blinky luon la con dau tien - lay vi tri no de cac con khac tinh muc tieu
         int blinkyCol = danhSachMa[0].col;
@@ -139,10 +144,11 @@ int main(int argc, char* argv[]) {
             pacman.dirX, pacman.dirY
         );
         for (auto& ma : danhSachMa) {
+            bool ending = ma.isFearEndingSoon(now);
             renderer.drawGhost(
                 ma.col * CELL + CELL / 2.0f,
                 TOP_MARGIN + ma.row * CELL + CELL / 2.0f,
-                ma.loai, ma.dirX, ma.dirY
+                ma.loai, ma.trangThai, ma.dirX, ma.dirY, ending
             );
         }
         renderer.present();

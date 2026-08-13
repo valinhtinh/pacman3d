@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <cmath>
 #include <vector>
+#include <string>
 #include <iostream>
 
 Renderer::Renderer() : window(nullptr), sdlRenderer(nullptr), font(nullptr) {}
@@ -146,36 +147,62 @@ void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
 }
 
 namespace {
+// Màu gốc của ma khi bình thường
 SDL_Color mauTheoLoaiMa(LoaiMa loai) {
     switch (loai) {
-        case BLINKY: return {255, 0, 0, 255};     // đỏ
-        case PINKY:  return {255, 184, 255, 255}; // hồng
-        case INKY:   return {0, 255, 255, 255};   // xanh
+        case BLINKY: return {255, 0, 0, 255};     // do
+        case PINKY:  return {255, 184, 255, 255}; // hong
+        case INKY:   return {0, 255, 255, 255};   // xanh cyan
         case CLYDE:  return {255, 184, 82, 255};  // cam
     }
     return {255, 255, 255, 255};
 }
 }
 
-void Renderer::drawGhost(float cx, float cy, LoaiMa loai, int dirX, int dirY) {
+// Màu thực tế 
+SDL_Color Renderer::colorMa(LoaiMa loai, TrangThaiMa trangThai, bool isFearEndingSoon) const {
+    // Đang sợ và sắp hết thời gian -> nhấp nháy giữa trắng và xanh dương
+    if (trangThai == FEAR && isFearEndingSoon) {
+        bool white = (SDL_GetTicks() / 150) % 2 == 0;
+        return white ? SDL_Color{255, 255, 255, 255}
+                     : SDL_Color{33, 33, 222, 255};
+    }
+
+    // Đang sợ nhưng chưa sắp hết thời gian 
+    if (trangThai == FEAR && !isFearEndingSoon) {
+        return {33, 33, 222, 255};
+    }
+
+    // bình thường
+    return mauTheoLoaiMa(loai);
+}
+
+void Renderer::drawGhost(float cx, float cy, LoaiMa loai, TrangThaiMa trangThai,
+                          int dirX, int dirY, bool isFearEndingSoon) {
     const float radius = 8.5f;
-    SDL_Color bodyColor = mauTheoLoaiMa(loai);
 
-    // vẽ đầu
-    fillArc(cx, cy, radius, bodyColor, 180.0f, 360.0f, 16);
+    // nếu ma đang bay về thì vẽ mắt ko vẽ thân
+    bool haveBody = (trangThai != HOME);
 
-    // vẽ thân dưới hcn
-    SDL_SetRenderDrawColor(sdlRenderer, bodyColor.r, bodyColor.g, bodyColor.b, 255);
-    SDL_Rect torso{ (int)(cx - radius), (int)cy, (int)(radius * 2), (int)radius };
-    SDL_RenderFillRect(sdlRenderer, &torso);
+    if (haveBody) {
+        SDL_Color colorBody = colorMa(loai, trangThai, isFearEndingSoon);
 
-    // vẽ mắt trắng, tròng đen theo hướng di
-    SDL_Color white{255, 255, 255, 255};
-    SDL_Color pupil{20, 20, 90, 255};
-    for (int side = -1; side <= 1; side += 2) {
-        float ex = cx + side * 3.0f;
+        // Nửa đầu trên
+        fillArc(cx, cy, radius, colorBody, 180.0f, 360.0f, 16);
+
+        // Thân dưới hcn
+        SDL_SetRenderDrawColor(sdlRenderer, colorBody.r, colorBody.g, colorBody.b, 255);
+        SDL_Rect than{ (int)(cx - radius), (int)cy, (int)(radius * 2), (int)radius };
+        SDL_RenderFillRect(sdlRenderer, &than);
+    }
+
+    // luôn vẽ mắt ma trong mọi trạng thái
+    SDL_Color matTrang{255, 255, 255, 255};
+    SDL_Color trongDen{20, 20, 90, 255};
+    for (int ben = -1; ben <= 1; ben += 2) {
+        float ex = cx + ben * 3.0f;
         float ey = cy - 2.0f;
-        fillArc(ex, ey, 3.0f, white, 0, 360, 8);
-        fillArc(ex + dirX * 1.3f, ey + dirY * 1.3f, 1.4f, pupil, 0, 360, 6);
+        fillArc(ex, ey, 3.0f, matTrang, 0, 360, 8);
+        fillArc(ex + dirX * 1.3f, ey + dirY * 1.3f, 1.4f, trongDen, 0, 360, 6);
     }
 }

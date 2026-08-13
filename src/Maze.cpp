@@ -57,17 +57,18 @@ bool Maze::pacWalkable(int x, int y) const {
     return t != WALL && t != DOOR && t != HOUSE;
 }
 
-bool Maze::eatPellet(int x, int y) {
-    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
+int Maze::eatPellet(int x, int y) {
+    if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return EMPTY;
 
-    int& tile = grid[y][x];
+    int& tile = grid[y][x]; 
     if (tile == PELLET || tile == POWER) {
+        int pelletType = tile;
         tile = EMPTY;
         if (pelletTotal > 0) {
             pelletTotal--;
         }
-        return true;
+        return pelletType;
     }
 
-    return false;
+    return EMPTY;
 }

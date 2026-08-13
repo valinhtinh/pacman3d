@@ -20,12 +20,15 @@ public:
     void drawMaze(const Maze& maze);
     void drawPacman(float cx, float cy, int dirX, int dirY);
 
-    void drawGhost(float cx, float cy, LoaiMa loai, int dirX, int dirY);
+    void drawGhost(float cx, float cy, LoaiMa loai, TrangThaiMa trangThai,
+                   int dirX, int dirY, bool isFearEndingSoon);
+    void Score(int score); 
 
 private:
     SDL_Window* window;
     SDL_Renderer* sdlRenderer;
     TTF_Font* font;
+    SDL_Color colorMa(LoaiMa loai, TrangThaiMa trangThai, bool isFearEndingSoon) const;
 
     void fillArc(float cx, float cy, float radius, SDL_Color col, float startDeg, float endDeg, int segments);
     void drawWallTile(int x, int y);

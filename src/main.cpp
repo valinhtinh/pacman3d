@@ -84,6 +84,16 @@ void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa, Uint32 now) {
     }
 }
 
+void restartGame(Maze& maze, Pacman& pacman, std::vector<Ghost>& danhSachMa,
+                  int& score, int& lives, bool& gameEnded, bool& win, Uint32 now){
+    maze.build(); // rebuild lại pellet
+    score = 0;
+    lives = 3;
+    gameEnded = false;
+    win = false;
+    resetViTri(pacman, danhSachMa, now);
+}
+
 }
 
 int main(int argc, char* argv[]) {
@@ -107,7 +117,7 @@ int main(int argc, char* argv[]) {
     }
 
     int score = 0;
-    int lives = 5;
+    int lives = 3;
     bool gameEnded = false;
     bool win = false;
 
@@ -127,6 +137,8 @@ int main(int argc, char* argv[]) {
                         for (auto& ma : danhSachMa) {
                             ma.resetGio(gameStartTick);
                         }
+                    } else if (gameEnded) {
+                        restartGame(maze, pacman, danhSachMa, score, lives, gameEnded, win, SDL_GetTicks());
                     }
                 }
             }
@@ -208,14 +220,18 @@ int main(int argc, char* argv[]) {
         if (gameEnded && !win) {
             renderer.drawLives(lives);
             renderer.drawText("YOU LOSE", 280, {255, 60, 60, 255});
+            renderer.drawText("Press Enter to Restart", 320, {255, 255, 255, 255});
+        } else if (gameEnded && win) {
+            renderer.drawLives(lives);
+            renderer.drawText("YOU WIN", 280, {255, 255, 0, 255});
+            renderer.drawText("Score: " + std::to_string(score), 320, {255, 255, 255, 255});
+            renderer.drawText("Press Enter to Restart", 360, {255, 255, 255, 255});
         } else {
             renderer.drawScore(score);
             renderer.drawLives(lives);
-            if (gameEnded && win) {
-                renderer.drawText("YOU WIN", 280, {255, 255, 0, 255});
-            }
         }
         renderer.present();
+
     }
 
     return 0;

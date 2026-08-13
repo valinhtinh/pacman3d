@@ -171,6 +171,22 @@ void Renderer::drawScore(int score) {
     }
 }
 
+void Renderer::drawTextCentered(const std::string& text, int y, SDL_Color color) {
+    if (!font) return;
+
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
+    if (!surface) return;
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(sdlRenderer, surface);
+    SDL_Rect dst{(SCREEN_W - surface->w) / 2, y, surface->w, surface->h};
+    SDL_FreeSurface(surface);
+
+    if (texture) {
+        SDL_RenderCopy(sdlRenderer, texture, nullptr, &dst);
+        SDL_DestroyTexture(texture);
+    }
+}
+
 void Renderer::drawLives(int lives) {
     if (!font) return;
 

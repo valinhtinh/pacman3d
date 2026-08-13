@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <string>
 #include "Maze.h"
 #include "Ghost.h"
 
@@ -24,6 +25,7 @@ public:
                    int dirX, int dirY, bool isFearEndingSoon);
     void drawScore(int score);
     void drawLives(int lives);
+    void drawTextCentered(const std::string& text, int y, SDL_Color color);
 
 private:
     SDL_Window* window;

@@ -106,12 +106,34 @@ int main(int argc, char* argv[]) {
     int lives = 3;
 
     bool running = true;
+    bool started = false;
     SDL_Event e;
 
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) running = false;
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) running = false;
+            if (e.type == SDL_KEYDOWN) {
+                if (e.key.keysym.sym == SDLK_ESCAPE) running = false;
+                if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
+                    if (!started) {
+                        started = true;
+                        gameStartTick = SDL_GetTicks();
+                        for (auto& ma : danhSachMa) {
+                            ma.resetGio(gameStartTick);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!started) {
+            renderer.clear();
+            renderer.drawMaze(maze);
+            renderer.drawTextCentered("PACMAN 3D", 150, {255, 255, 0, 255});
+            renderer.drawTextCentered("Press Enter to Start", 210, {255, 255, 255, 255});
+            renderer.drawTextCentered("Esc to Quit", 250, {255, 255, 255, 255});
+            renderer.present();
+            continue;
         }
 
         Uint32 now = SDL_GetTicks();

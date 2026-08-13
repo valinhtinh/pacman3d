@@ -171,7 +171,7 @@ void Renderer::drawScore(int score) {
     }
 }
 
-void Renderer::drawTextCentered(const std::string& text, int y, SDL_Color color) {
+void Renderer::drawText(const std::string& text, int y, SDL_Color color) {
     if (!font) return;
 
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);

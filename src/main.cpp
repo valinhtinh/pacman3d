@@ -133,9 +133,9 @@ int main(int argc, char* argv[]) {
         if (!started) {
             renderer.clear();
             renderer.drawMaze(maze);
-            renderer.drawTextCentered("PACMAN 3D", 150, {255, 255, 0, 255});
-            renderer.drawTextCentered("Press Enter to Start", 210, {255, 255, 255, 255});
-            renderer.drawTextCentered("Esc to Quit", 250, {255, 255, 255, 255});
+            renderer.drawText("PACMAN 3D", 150, {255, 255, 0, 255});
+            renderer.drawText("Press Enter to Start", 210, {255, 255, 255, 255});
+            renderer.drawText("Esc to Quit", 250, {255, 255, 255, 255});
             renderer.present();
             continue;
         }

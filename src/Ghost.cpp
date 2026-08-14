@@ -199,7 +199,7 @@ void Ghost::capNhat(const Maze& maze,
     }
 
     if (diChuyen(maze, col + dirX, row + dirY)) {
-        col += dirX;
+        col = maze.wrapCol(col + dirX);
         row += dirY;
     }
 }

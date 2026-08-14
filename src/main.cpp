@@ -6,6 +6,7 @@
 #include "Maze.h"
 #include "Ghost.h"
 #include "Renderer.h"
+#include "AudioManager.h"
 
 namespace {
 struct Pacman {
@@ -104,6 +105,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    AudioManager audioManager;
+    audioManager.init();
+
     Maze maze;
     maze.build();
 
@@ -137,6 +141,7 @@ int main(int argc, char* argv[]) {
                         for (auto& ma : danhSachMa) {
                             ma.resetGio(gameStartTick);
                         }
+                        audioManager.playSound(AudioManager::BEGIN);
                     } else if (gameEnded) {
                         restartGame(maze, pacman, danhSachMa, score, lives, gameEnded, win, SDL_GetTicks());
                     }
@@ -156,8 +161,7 @@ int main(int argc, char* argv[]) {
 
         Uint32 now = SDL_GetTicks();
 
-        if (!gameEnded) {
-            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+        if (!gameEnded) {                audioManager.playSound(AudioManager::CHOMP);            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
             if (pelletType == PELLET) {
                 score += 10;
             }
@@ -189,8 +193,10 @@ int main(int argc, char* argv[]) {
                 if (ma.isFear()) {
                     score += 200;   // ăn đc ma đang sợ
                     ma.biAn();       // chỉ con này về nhà, các con khác không ảnh hưởng
+                    audioManager.playSound(AudioManager::EATGHOST);
                 } else if (ma.trangThai == NORMAL) {
                     lives--;
+                    audioManager.playSound(AudioManager::DEATH);
                     if (lives <= 0) {
                         gameEnded = true; 
                         win = false;
@@ -234,5 +240,6 @@ int main(int argc, char* argv[]) {
 
     }
 
+    audioManager.cleanup();
     return 0;
 }

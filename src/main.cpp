@@ -2,6 +2,9 @@
 #include <SDL.h>
 #include <cmath>
 #include <vector>
+#include <fstream>
+#include <algorithm>
+#include <string>
 #include "Globals.h"
 #include "Maze.h"
 #include "Ghost.h"
@@ -85,13 +88,52 @@ void resetViTri(Pacman& pacman, std::vector<Ghost>& danhSachMa, Uint32 now) {
     }
 }
 
+std::vector<int> loadHighScore(const std::string& path) {
+    std::vector<int> ds;
+    std::ifstream file(path);
+    int score;
+    while (file >> score) ds.push_back(score);
+    std::sort(ds.rbegin(), ds.rend());
+    if (ds.size() > 5) ds.resize(5);
+    return ds;
+}
+
+void saveHighScore(const std::string& path, std::vector<int>& ds, int score) {
+    ds.push_back(score);
+    std::sort(ds.rbegin(), ds.rend());
+    if (ds.size() > 5) ds.resize(5);
+    std::ofstream file(path); // ghi đè lại toàn bộ file
+    for (int d : ds) file << d << "\n";
+}
+
+std::string getHighScorePath() {
+    char* base = SDL_GetBasePath();
+    std::string path = base ? base : "";
+    if (base) SDL_free(base);
+    return path + "highscore.txt";
+}
+
 void restartGame(Maze& maze, Pacman& pacman, std::vector<Ghost>& danhSachMa,
-                  int& score, int& lives, bool& gameEnded, bool& win, Uint32 now){
+                  int& score, int& lives, bool& gameEnded, bool& win, bool& scoreSaved, Uint32 now){
     maze.build(); // rebuild lại pellet
     score = 0;
     lives = 3;
     gameEnded = false;
     win = false;
+    scoreSaved = false;
+    resetViTri(pacman, danhSachMa, now);
+}
+
+void returnMenu(Maze& maze, Pacman& pacman, std::vector<Ghost>& danhSachMa,
+            int& score, int& lives, bool& gameEnded, bool& win, bool& scoreSaved,
+            bool& started, Uint32 now) {
+    maze.build();
+    score = 0;
+    lives = 3;
+    gameEnded = false;
+    win = false;
+    scoreSaved = false;
+    started = false;
     resetViTri(pacman, danhSachMa, now);
 }
 
@@ -124,7 +166,9 @@ int main(int argc, char* argv[]) {
     int lives = 3;
     bool gameEnded = false;
     bool win = false;
-
+    bool scoreSaved = false;
+    std::string highScorePath = getHighScorePath();
+    std::vector<int> highScores = loadHighScore(highScorePath);    
     bool running = true;
     bool started = false;
     SDL_Event e;
@@ -134,7 +178,8 @@ int main(int argc, char* argv[]) {
             if (e.type == SDL_QUIT) running = false;
             if (e.type == SDL_KEYDOWN) {
                 if (e.key.keysym.sym == SDLK_ESCAPE) running = false;
-                if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
+
+                if (e.key.keysym.sym == SDLK_RETURN) {
                     if (!started) {
                         started = true;
                         gameStartTick = SDL_GetTicks();
@@ -143,7 +188,13 @@ int main(int argc, char* argv[]) {
                         }
                         audioManager.playSound(AudioManager::BEGIN);
                     } else if (gameEnded) {
-                        restartGame(maze, pacman, danhSachMa, score, lives, gameEnded, win, SDL_GetTicks());
+                        restartGame(maze, pacman, danhSachMa, score, lives, gameEnded, win, scoreSaved, SDL_GetTicks());
+                    }
+                }
+
+                if (e.key.keysym.sym == SDLK_SPACE) {
+                    if (gameEnded) {
+                        returnMenu(maze, pacman, danhSachMa, score, lives, gameEnded, win, scoreSaved, started, SDL_GetTicks());
                     }
                 }
             }
@@ -153,16 +204,27 @@ int main(int argc, char* argv[]) {
             renderer.clear();
             renderer.drawMaze(maze);
             renderer.drawText("PACMAN 3D", 150, {255, 255, 0, 255});
-            renderer.drawText("Press Enter to Start", 210, {255, 255, 255, 255});
-            renderer.drawText("Esc to Quit", 250, {255, 255, 255, 255});
+
+            int firstScore = highScores.empty() ? 0 : highScores[0];
+            renderer.drawText("HIGH SCORE: " + std::to_string(firstScore), 190, {255, 255, 0, 255});
+            
+            renderer.drawText("Press Enter to Start", 240, {255, 255, 255, 255});
+            renderer.drawText("Esc to Quit", 280, {255, 255, 255, 255});
+
             renderer.present();
             continue;
         }
 
         Uint32 now = SDL_GetTicks();
 
+<<<<<<< HEAD
         if (!gameEnded) {
             int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+=======
+        if (!gameEnded) {                            
+            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+
+>>>>>>> 69830b3 (hoan thien menu)
             if (pelletType == PELLET) {
                 score += 10;
                 audioManager.playSound(AudioManager::CHOMP);
@@ -210,6 +272,12 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+
+        if (gameEnded && !scoreSaved) {
+            saveHighScore(highScorePath, highScores, score);
+            scoreSaved = true;
+        }
+
         renderer.clear();
         renderer.drawMaze(maze);
         renderer.drawPacman(
@@ -230,11 +298,13 @@ int main(int argc, char* argv[]) {
             renderer.drawLives(lives);
             renderer.drawText("YOU LOSE", 280, {255, 60, 60, 255});
             renderer.drawText("Press Enter to Restart", 320, {255, 255, 255, 255});
+            renderer.drawText("Space to return Menu", 360, {255, 255, 255, 255});
         } else if (gameEnded && win) {
             renderer.drawLives(lives);
             renderer.drawText("YOU WIN", 280, {255, 255, 0, 255});
             renderer.drawText("Score: " + std::to_string(score), 320, {255, 255, 255, 255});
             renderer.drawText("Press Enter to Restart", 360, {255, 255, 255, 255});
+            renderer.drawText("Space to return Menu", 400, {255, 255, 255, 255});
         } else {
             renderer.drawScore(score);
             renderer.drawLives(lives);

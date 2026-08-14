@@ -161,12 +161,15 @@ int main(int argc, char* argv[]) {
 
         Uint32 now = SDL_GetTicks();
 
-        if (!gameEnded) {                audioManager.playSound(AudioManager::CHOMP);            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
+        if (!gameEnded) {
+            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
             if (pelletType == PELLET) {
                 score += 10;
+                audioManager.playSound(AudioManager::CHOMP);
             }
             else if (pelletType == POWER) {
                 score += 50;
+                audioManager.playSound(AudioManager::CHOMP);
                 for (auto& ma : danhSachMa) {
                     ma.startFear(15000, now);
                 }

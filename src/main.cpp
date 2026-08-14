@@ -217,14 +217,8 @@ int main(int argc, char* argv[]) {
 
         Uint32 now = SDL_GetTicks();
 
-<<<<<<< HEAD
-        if (!gameEnded) {
+if (!gameEnded) {
             int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
-=======
-        if (!gameEnded) {                            
-            int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
-
->>>>>>> 69830b3 (hoan thien menu)
             if (pelletType == PELLET) {
                 score += 10;
                 audioManager.playSound(AudioManager::CHOMP);

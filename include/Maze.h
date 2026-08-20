@@ -18,11 +18,11 @@ constexpr int HOUSE  = 5;
 class Maze {
 public:
     int grid[GRID_H][GRID_W];
-    int pelletTotal;
+    int pelletTotal;// dùng khi reset game
 
     Maze();
     void build();
-    int wrapCol(int x) const;
+    int wrapCol(int x) const; // xử lý đường hầm
     bool pacWalkable(int x, int y) const;
     int eatPellet(int x, int y); // trả về loại pellet đã ăn (PELLET hoặc POWER), hoặc EMPTY nếu không ăn gì
 };

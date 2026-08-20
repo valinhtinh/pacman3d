@@ -11,7 +11,7 @@ bool AudioManager::init() {
     // Khởi tạo SDL_mixer
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         std::cerr << "Failed to init Mix_OpenAudio: " << Mix_GetError() << std::endl;
-        return false;
+        return false; // Nếu file load lỗi thì chỉ im lặng ko crash
     }
 
     // Tải các file âm thanh từ assets/
@@ -23,7 +23,7 @@ bool AudioManager::init() {
 
     sounds[BEGIN] = loadSound("assets/begin.wav");
     if (sounds[BEGIN]) {
-        Mix_VolumeChunk(sounds[BEGIN], 30); // 64/128 = 50% volume
+        Mix_VolumeChunk(sounds[BEGIN], 30); // cho nhỏ begin lại 30/128
     }
 
     // Kiểm tra xem tất cả âm thanh đã được tải thành công

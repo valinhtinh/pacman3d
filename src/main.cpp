@@ -189,6 +189,8 @@ int main(int argc, char* argv[]) {
                         audioManager.playSound(AudioManager::BEGIN);
                     } else if (gameEnded) {
                         restartGame(maze, pacman, danhSachMa, score, lives, gameEnded, win, scoreSaved, SDL_GetTicks());
+                        audioManager.stopAllSounds();
+                        audioManager.playSound(AudioManager::BEGIN);
                     }
                 }
 

@@ -15,7 +15,7 @@ bool Renderer::init(const char* title, int width, int height) {
         std::cerr << "SDL_Init failed: " << SDL_GetError() << "\n";
         return false;
     }
-    if (TTF_Init() != 0) {
+    if (TTF_Init() != 0) { // vẽ text
         std::cerr << "TTF_Init failed: " << TTF_GetError() << "\n";
         return false;
     }
@@ -26,7 +26,7 @@ bool Renderer::init(const char* title, int width, int height) {
     sdlRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!sdlRenderer) return false;
 
-    font = TTF_OpenFont("assets/Southern.ttf", 22);
+    font = TTF_OpenFont("assets/Southern.ttf", 22); // load font chữ
     if (!font) {
         std::cerr << "TTF_OpenFont failed: " << TTF_GetError() << "\n";
         return false;
@@ -51,7 +51,7 @@ void Renderer::clear() {
 void Renderer::present() {
     SDL_RenderPresent(sdlRenderer);
 }
-
+// Hàm vẽ cung tròn tô kín, dùng chung cho pac, ma, pellet
 void Renderer::fillArc(float cx, float cy, float radius, SDL_Color col, float startDeg, float endDeg, int segments) {
     if (segments < 2) segments = 2;
     std::vector<SDL_Vertex> verts;

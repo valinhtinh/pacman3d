@@ -122,7 +122,8 @@ void Ghost::chonHuongDi(const Maze& maze, int mucTieuCol, int mucTieuRow, bool c
         int ny = row + dy[i];
 
         if (!diChuyen(maze, nx, ny)) continue; 
-
+        
+        //nếu hướng đi được thì tính khoảng cách euclid
         float d = std::sqrt(float((nx - mucTieuCol) * (nx - mucTieuCol) +
                                    (ny - mucTieuRow) * (ny - mucTieuRow)));
         if (!found || d < ganNhat) {
@@ -139,7 +140,7 @@ void Ghost::chonHuongDi(const Maze& maze, int mucTieuCol, int mucTieuRow, bool c
     }
 }
 
-void Ghost::diNgauNhien(const Maze& maze) {
+void Ghost::diNgauNhien(const Maze& maze) { 
     // lên, trái, xuống, phải
     static const int dx[4] = { 0, -1, 0, 1 }; 
     static const int dy[4] = { -1, 0, 1, 0 };
@@ -178,9 +179,9 @@ void Ghost::capNhat(const Maze& maze,
         trangThai = NORMAL;
     }
 
-    Uint32 MOVE_DELAY = (trangThai == FEAR) ? FEAR_DELAY 
-                   : (trangThai == HOME) ? HOME_DELAY 
-                   : NORMAL_DELAY;
+    Uint32 MOVE_DELAY = (trangThai == FEAR) ? FEAR_DELAY //200ms
+                   : (trangThai == HOME) ? HOME_DELAY // 100ms
+                   : NORMAL_DELAY; // 150ms
 
 
     if (now - lastMoveTick < MOVE_DELAY) return;

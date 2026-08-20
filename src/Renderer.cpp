@@ -123,7 +123,7 @@ void Renderer::drawPacman(float cx, float cy, int dirX, int dirY) {
     SDL_Color yellow{255, 220, 0, 255};
     fillArc(cx, cy, 8.5f, yellow, 0.0f, 360.0f, 24);
 
-    float facingDeg = 0.0f;
+    float facingDeg = 0.0f; // hướng miệng suy ra từ dirX dirY
     if (dirX < 0) facingDeg = 180.0f;
     else if (dirY < 0) facingDeg = -90.0f;
     else if (dirY > 0) facingDeg = 90.0f;
@@ -241,7 +241,6 @@ void Renderer::drawGhost(float cx, float cy, LoaiMa loai, TrangThaiMa trangThai,
                           int dirX, int dirY, bool isFearEndingSoon) {
     const float radius = 8.5f;
 
-    // nếu ma đang bay về thì vẽ mắt ko vẽ thân
     bool haveBody = (trangThai != HOME);
 
     if (haveBody) {

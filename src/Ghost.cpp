@@ -105,7 +105,7 @@ void Ghost::tinhMucTieu(int pacCol, int pacRow, int pacDirX, int pacDirY,
     }
 }
 
-// chọn hướng đi tốt nhất 
+// thuật toán chọn hướng đi tốt nhất của ma
 void Ghost::chonHuongDi(const Maze& maze, int mucTieuCol, int mucTieuRow, bool choPhepQuayDau) {
     // lên, trái, xuống, phải
     static const int dx[4] = { 0, -1, 0, 1 }; 

@@ -34,6 +34,7 @@ int updatePacman(Maze& maze, Pacman& pacman, const Uint8* keys) {
     int queuedX = 0;
     int queuedY = 0;
 
+    // Đọc phím, set nextDir
     if (keys[SDL_SCANCODE_LEFT]) queuedX = -1;
     else if (keys[SDL_SCANCODE_RIGHT]) queuedX = 1;
     else if (keys[SDL_SCANCODE_UP]) queuedY = -1;
@@ -107,7 +108,7 @@ void saveHighScore(const std::string& path, std::vector<int>& ds, int score) {
 }
 
 std::string getHighScorePath() {
-    char* base = SDL_GetBasePath();
+    char* base = SDL_GetBasePath(); // lấy path
     std::string path = base ? base : "";
     if (base) SDL_free(base);
     return path + "highscore.txt";
@@ -173,7 +174,8 @@ int main(int argc, char* argv[]) {
     bool started = false;
     SDL_Event e;
 
-    while (running) {
+    while (running) { // 3 pha
+        // Sự kiện rời rạc
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) running = false;
             if (e.type == SDL_KEYDOWN) {
@@ -202,6 +204,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        // MENU
         if (!started) {
             renderer.clear();
             renderer.drawMaze(maze);
@@ -214,12 +217,12 @@ int main(int argc, char* argv[]) {
             renderer.drawText("Esc to Quit", 280, {255, 255, 255, 255});
 
             renderer.present();
-            continue;
+            continue; 
         }
 
         Uint32 now = SDL_GetTicks();
 
-if (!gameEnded) {
+        if (!gameEnded) { // mô phỏng 1 frame
             int pelletType = updatePacman(maze, pacman, SDL_GetKeyboardState(nullptr));
             if (pelletType == PELLET) {
                 score += 10;

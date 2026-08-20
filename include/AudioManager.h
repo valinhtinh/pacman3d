@@ -10,7 +10,8 @@ public:
     enum SoundType {
         CHOMP,      // Âm thanh ăn pellet
         EATGHOST,   // Âm thanh ăn ma
-        DEATH,      // Âm thanh chết
+        DEATH,
+        WIN,      // Âm thanh chết
         BEGIN       // Âm thanh bắt đầu
     };
 

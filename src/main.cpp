@@ -234,6 +234,8 @@ if (!gameEnded) {
             if (maze.pelletTotal <= 0) {
                 gameEnded = true;
                 win = true;
+                audioManager.stopAllSounds();
+                audioManager.playSound(AudioManager::WIN);
             }
         
             // Blinky luon la con dau tien - lay vi tri no de cac con khac tinh muc tieu

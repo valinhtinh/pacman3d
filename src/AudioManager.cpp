@@ -19,6 +19,12 @@ bool AudioManager::init() {
     sounds[EATGHOST] = loadSound("assets/eatghosh.wav");
     sounds[DEATH] = loadSound("assets/death.wav");
     sounds[BEGIN] = loadSound("assets/begin.wav");
+    sounds[WIN] = loadSound("assets/win.wav");
+
+    sounds[BEGIN] = loadSound("assets/begin.wav");
+    if (sounds[BEGIN]) {
+        Mix_VolumeChunk(sounds[BEGIN], 30); // 64/128 = 50% volume
+    }
 
     // Kiểm tra xem tất cả âm thanh đã được tải thành công
     bool allLoaded = true;
